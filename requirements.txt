@@ -6,3 +6,12 @@ scikit-learn
 joblib
 xgboost
 plotly
+
+# Phase 1: Model Comparison
+lightgbm>=4.0.0
+
+# Phase 2: Explainability
+shap>=0.42.0
+
+# Phase 3: Statistical Analysis
+scipy>=1.10.0
