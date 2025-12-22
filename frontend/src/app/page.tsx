@@ -1,65 +1,150 @@
-import Image from "next/image";
+'use client';
 
-export default function Home() {
+import { useEffect, useState } from 'react';
+import {
+  Card,
+  Title,
+  Text,
+  Grid,
+  Col,
+  Flex,
+  Badge,
+} from '@tremor/react';
+import { MetricCard } from '@/components/MetricCard';
+import { api } from '@/lib/api';
+import type { MetricsResponse, AnomaliesResponse } from '@/lib/types';
+
+export default function Dashboard() {
+  const [metrics, setMetrics] = useState<MetricsResponse | null>(null);
+  const [anomalies, setAnomalies] = useState<AnomaliesResponse | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    async function fetchData() {
+      try {
+        const [metricsData, anomaliesData] = await Promise.all([
+          api.getCurrentMetrics(),
+          api.getActiveAnomalies(),
+        ]);
+        setMetrics(metricsData);
+        setAnomalies(anomaliesData);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Failed to fetch data');
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    fetchData();
+    const interval = setInterval(fetchData, 30000); // Refresh every 30s
+    return () => clearInterval(interval);
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <Text>Loading metrics...</Text>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <Card className="bg-red-900/20 border-red-500">
+        <Title>Error</Title>
+        <Text>{error}</Text>
+        <Text className="mt-2 text-sm">
+          Make sure the backend API is running at {process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}
+        </Text>
+      </Card>
+    );
+  }
+
+  const metricsList = metrics?.metrics ? Object.entries(metrics.metrics) : [];
+  const systemStatus = anomalies?.is_system_anomalous ? 'Anomalous' : 'Normal';
+  const statusColor = anomalies?.is_system_anomalous ? 'red' : 'emerald';
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+    <div className="space-y-8">
+      {/* Header */}
+      <Flex justifyContent="between" alignItems="center">
+        <div>
+          <Title>Live Metrics Dashboard</Title>
+          <Text>Real-time hospital operations monitoring</Text>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
+        <Flex className="gap-4" alignItems="center">
+          <Text className="text-sm text-gray-400">
+            Last updated: {metrics?.timestamp ? new Date(metrics.timestamp).toLocaleTimeString() : 'N/A'}
+          </Text>
+          <Badge color={statusColor} size="lg">
+            System: {systemStatus}
+          </Badge>
+        </Flex>
+      </Flex>
+
+      {/* Multi-dimensional Score */}
+      {anomalies && (
+        <Card decoration="left" decorationColor={statusColor}>
+          <Flex>
+            <div>
+              <Text>Multi-Dimensional Anomaly Score</Text>
+              <Title className="text-3xl">{anomalies.multi_dimensional_score.toFixed(2)}</Title>
+            </div>
+            <div className="text-right">
+              <Text>Active Alerts</Text>
+              <Title className="text-3xl">{anomalies.active_anomalies.length}</Title>
+            </div>
+          </Flex>
+        </Card>
+      )}
+
+      {/* Metric Cards Grid */}
+      <Grid numItemsMd={2} numItemsLg={3} className="gap-6">
+        {metricsList.map(([key, value]) => (
+          <Col key={key}>
+            <MetricCard
+              title={key.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase())}
+              metric={value}
+              unit={key === 'ed_wait_time' ? 'min' : key === 'length_of_stay' ? 'hrs' : ''}
             />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
+          </Col>
+        ))}
+      </Grid>
+
+      {/* Active Anomalies List */}
+      {anomalies && anomalies.active_anomalies.length > 0 && (
+        <Card>
+          <Title>Active Anomalies</Title>
+          <div className="mt-4 space-y-3">
+            {anomalies.active_anomalies.map((alert) => (
+              <div
+                key={alert.id}
+                className={`p-4 rounded-lg border ${
+                  alert.severity === 'critical'
+                    ? 'bg-red-900/20 border-red-500'
+                    : 'bg-yellow-900/20 border-yellow-500'
+                }`}
+              >
+                <Flex justifyContent="between">
+                  <div>
+                    <Text className="font-semibold">
+                      {alert.metric.replace(/_/g, ' ').toUpperCase()}
+                    </Text>
+                    <Text className="text-sm text-gray-400">{alert.context}</Text>
+                  </div>
+                  <div className="text-right">
+                    <Text>Current: {alert.current.toFixed(1)}</Text>
+                    <Text className="text-sm text-gray-400">
+                      Baseline: {alert.baseline.toFixed(1)} | Z: {alert.z_score.toFixed(2)}
+                    </Text>
+                  </div>
+                </Flex>
+              </div>
+            ))}
+          </div>
+        </Card>
+      )}
     </div>
   );
 }
