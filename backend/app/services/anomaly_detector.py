@@ -89,8 +89,8 @@ class AnomalyDetector:
         """Calculate anomaly scores for current state."""
         metrics = self.get_current_metrics()
 
-        # Individual z-scores
-        z_scores = {m: abs(metrics[m]['z_score']) for m in metrics}
+        # Individual z-scores (convert to float for JSON serialization)
+        z_scores = {m: float(abs(metrics[m]['z_score'])) for m in metrics}
 
         # Combined multi-dimensional score
         combined = sum(z_scores.values())
@@ -98,8 +98,8 @@ class AnomalyDetector:
 
         return {
             'scores': z_scores,
-            'combined_score': round(combined, 2),
-            'is_anomalous': is_anomalous
+            'combined_score': round(float(combined), 2),
+            'is_anomalous': bool(is_anomalous)
         }
 
     def get_active_anomalies(self) -> List[Dict]:
