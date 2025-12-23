@@ -1,0 +1,73 @@
+{
+  "feature_names": [
+    "admission_type_ELECTIVE",
+    "admission_type_EMERGENCY",
+    "admission_type_URGENT",
+    "admission_location_CLINIC REFERRAL/PREMATURE",
+    "admission_location_EMERGENCY ROOM ADMIT",
+    "admission_location_PHYS REFERRAL/NORMAL DELI",
+    "admission_location_TRANSFER FROM HOSP/EXTRAM",
+    "admission_location_TRANSFER FROM SKILLED NUR",
+    "ethnicity_AMERICAN INDIAN/ALASKA NATIVE FEDERALLY RECOGNIZED TRIBE",
+    "ethnicity_ASIAN",
+    "ethnicity_BLACK/AFRICAN AMERICAN",
+    "ethnicity_HISPANIC OR LATINO",
+    "ethnicity_HISPANIC/LATINO - PUERTO RICAN",
+    "ethnicity_OTHER",
+    "ethnicity_UNABLE TO OBTAIN",
+    "ethnicity_UNKNOWN/NOT SPECIFIED",
+    "ethnicity_WHITE",
+    "hour",
+    "day_of_week",
+    "age",
+    "prev_admissions",
+    "num_diagnoses"
+  ],
+  "cat_features": [
+    "admission_type",
+    "admission_location",
+    "ethnicity"
+  ],
+  "num_features": [
+    "hour",
+    "day_of_week",
+    "age",
+    "prev_admissions",
+    "num_diagnoses"
+  ],
+  "metrics": {
+    "ed_wait_time": {
+      "mae": 30.42,
+      "r2": 0.5728,
+      "type": "regression"
+    },
+    "length_of_stay": {
+      "mae": 1.71,
+      "r2": 0.3283,
+      "type": "regression"
+    },
+    "mortality_risk": {
+      "accuracy": 0.825,
+      "auc": 0.825,
+      "f1": 0.4,
+      "type": "classification"
+    },
+    "hospital_load": {
+      "mae": 6.02,
+      "r2": 0.743,
+      "type": "timeseries",
+      "features": [
+        "hour",
+        "day_of_week",
+        "day_of_month",
+        "is_weekend",
+        "load_lag_1",
+        "load_lag_2",
+        "load_lag_3",
+        "load_lag_6",
+        "load_lag_12",
+        "load_lag_24"
+      ]
+    }
+  }
+}

@@ -5,6 +5,12 @@ import type {
   PredictionRequest,
   PredictionResponse,
   ExplanationResponse,
+  PatientInput,
+  MultiPredictionResponse,
+  ModelExplanation,
+  ForecastResponse,
+  ModelMetricsResponse,
+  ModelInfoResponse,
 } from './types';
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
@@ -57,4 +63,27 @@ export const api = {
 
   // Health
   healthCheck: () => fetchAPI<{ status: string }>('/health'),
+
+  // Multi-model predictions
+  predictAllOutcomes: (patient: PatientInput) =>
+    fetchAPI<MultiPredictionResponse>('/api/models/predict', {
+      method: 'POST',
+      body: JSON.stringify(patient),
+    }),
+
+  explainModel: (patient: PatientInput, target: string) =>
+    fetchAPI<ModelExplanation>('/api/models/explain', {
+      method: 'POST',
+      body: JSON.stringify({ patient, target }),
+    }),
+
+  forecastLoad: (currentLoad: number, history: number[], hoursAhead: number = 24) =>
+    fetchAPI<ForecastResponse>('/api/models/forecast', {
+      method: 'POST',
+      body: JSON.stringify({ current_load: currentLoad, history, hours_ahead: hoursAhead }),
+    }),
+
+  getModelMetrics: () => fetchAPI<ModelMetricsResponse>('/api/models/metrics'),
+
+  getModelInfo: () => fetchAPI<ModelInfoResponse>('/api/models/info'),
 };

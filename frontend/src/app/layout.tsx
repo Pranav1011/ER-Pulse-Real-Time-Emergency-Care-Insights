@@ -24,10 +24,12 @@ export default function RootLayout({
               <span className="text-2xl">🏥</span>
               <span className="font-bold text-xl">Healthcare Analytics</span>
             </div>
-            <div className="flex gap-6">
+            <div className="flex gap-4 text-sm">
               <Link href="/" className="hover:text-blue-400 transition">Dashboard</Link>
-              <Link href="/alerts" className="hover:text-blue-400 transition">Alerts</Link>
               <Link href="/predict" className="hover:text-blue-400 transition">Predict</Link>
+              <Link href="/forecast" className="hover:text-blue-400 transition">Forecast</Link>
+              <Link href="/models" className="hover:text-blue-400 transition">Models</Link>
+              <Link href="/alerts" className="hover:text-blue-400 transition">Alerts</Link>
             </div>
           </div>
         </nav>

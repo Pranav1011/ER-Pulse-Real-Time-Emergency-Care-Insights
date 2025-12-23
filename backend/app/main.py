@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from .routers import metrics, anomalies, predict
+from .routers import metrics, anomalies, predict, models
 
 app = FastAPI(
     title="Healthcare Analytics API",
@@ -21,6 +21,7 @@ app.add_middleware(
 app.include_router(metrics.router)
 app.include_router(anomalies.router)
 app.include_router(predict.router)
+app.include_router(models.router)
 
 @app.get("/health")
 def health_check():
