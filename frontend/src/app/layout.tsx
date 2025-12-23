@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
+import Link from 'next/link';
 import './globals.css';
 
 const inter = Inter({ subsets: ['latin'] });
@@ -24,9 +25,9 @@ export default function RootLayout({
               <span className="font-bold text-xl">Healthcare Analytics</span>
             </div>
             <div className="flex gap-6">
-              <a href="/" className="hover:text-blue-400 transition">Dashboard</a>
-              <a href="/alerts" className="hover:text-blue-400 transition">Alerts</a>
-              <a href="/predict" className="hover:text-blue-400 transition">Predict</a>
+              <Link href="/" className="hover:text-blue-400 transition">Dashboard</Link>
+              <Link href="/alerts" className="hover:text-blue-400 transition">Alerts</Link>
+              <Link href="/predict" className="hover:text-blue-400 transition">Predict</Link>
             </div>
           </div>
         </nav>
